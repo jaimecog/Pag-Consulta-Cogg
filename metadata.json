@@ -1,0 +1,7 @@
+{
+  "name": "Coggitech Test Site",
+  "description": "An interactive, elegant brand identity form with custom color selection, logo preview, and AI-powered description refinement using Gemini.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

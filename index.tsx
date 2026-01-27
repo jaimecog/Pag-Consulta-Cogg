@@ -1,0 +1,1 @@
+// Toda la lógica ha sido trasladada a index.html según la solicitud del usuario.
