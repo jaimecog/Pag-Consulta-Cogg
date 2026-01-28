@@ -80,6 +80,7 @@
         // --- Constants ---
         const BRAND_COLORS_PRESET = ['#073B4C', '#FF6B35', '#06D6A0', '#FFD166', '#118AB2', '#EF476F'];
         const ToneOptions = ['Profesional', 'Creativo', 'Cercano/Amistoso', 'Autoritario', 'Minimalista'];
+        const EstiloOptions = ['Minimalista', 'Cinematográfico', 'Moderno', 'Tecnológico', 'Ilustración infantil'];
 
 
         // --- Components ---
@@ -230,7 +231,7 @@
                             <div>
                                 <div className="w-14 h-14 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/10">
                                     <svg className="w-7 h-7 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
                                     </svg>
                                 </div>
                                 <p className="text-sm text-white/60">Haz clic para subir un archivo (.jpg, .png, .svg, .webp)</p>
@@ -247,6 +248,7 @@
                 colores: [],
                 descripcion: '',
                 tono: ToneOptions[0],
+                estilo: EstiloOptions[0],
                 redesSociales: { youtube: false, instagram: false, tiktok: false },
                 logo: null,
                 logoName: null
@@ -277,9 +279,19 @@
             };
 
             const handleAIRefine = async () => {
+                if (!formData.descripcion) return;
                 setIsRefining(true);
-                const refined = await refineDescriptionAI(formData.descripcion, formData.tono);
-                setFormData(p => ({ ...p, descripcion: refined }));
+                try {
+                    const response = await ai.models.generateContent({
+                        model: 'gemini-3-flash-preview',
+                        contents: `Refina la siguiente descripción de marca para que suene más ${formData.tono} y con un estilo ${formData.estilo}. Máximo 2 párrafos: "${formData.descripcion}"`,
+                        config: { temperature: 0.7 }
+                    });
+                    setFormData(p => ({ ...p, descripcion: response.text }));
+                } catch (err) {
+                    console.error(err);
+                    alert("Error al conectar con la IA.");
+                }
                 setIsRefining(false);
             };
 
@@ -321,7 +333,7 @@
 
                             <div className="grid md:grid-cols-2 gap-10">
                                 <div>
-                                    <label className="block text-sm font-semibold mb-3 uppercase tracking-wider font-montserrat">Estilo de Comunicación</label>
+                                    <label className="block text-sm font-semibold mb-3 uppercase tracking-wider font-montserrat">Estilo de Comunicación (Tono)</label>
                                     <select
                                         name="tono"
                                         value={formData.tono}
@@ -332,23 +344,35 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-semibold mb-3 uppercase tracking-wider font-montserrat">Presencia Digital</label>
-                                    <div className="flex gap-4 flex-wrap">
-                                        {Object.keys(formData.redesSociales).map(key => (
-                                            <button
-                                                key={key}
-                                                type="button"
-                                                onClick={() => handleCheckboxChange(key)}
-                                                className={`px-4 py-2 rounded-xl border text-[10px] font-bold transition-all uppercase tracking-widest ${
-                                                    formData.redesSociales[key] 
-                                                    ? 'bg-brandGreen border-brandGreen text-brandDeep shadow-lg shadow-brandGreen/20' 
-                                                    : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'
-                                                }`}
-                                            >
-                                                {key}
-                                            </button>
-                                        ))}
-                                    </div>
+                                    <label className="block text-sm font-semibold mb-3 uppercase tracking-wider font-montserrat">Estilo (Afecta imagen, video y música)</label>
+                                    <select
+                                        name="estilo"
+                                        value={formData.estilo}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-4 focus:ring-2 focus:ring-brandOrange outline-none appearance-none cursor-pointer"
+                                    >
+                                        {EstiloOptions.map(o => <option key={o} value={o} className="bg-brandDeep text-white">{o}</option>)}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-semibold mb-3 uppercase tracking-wider font-montserrat">Presencia Digital</label>
+                                <div className="flex gap-4 flex-wrap">
+                                    {Object.keys(formData.redesSociales).map(key => (
+                                        <button
+                                            key={key}
+                                            type="button"
+                                            onClick={() => handleCheckboxChange(key)}
+                                            className={`px-4 py-2 rounded-xl border text-[10px] font-bold transition-all uppercase tracking-widest ${
+                                                formData.redesSociales[key] 
+                                                ? 'bg-brandGreen border-brandGreen text-brandDeep shadow-lg shadow-brandGreen/20' 
+                                                : 'bg-white/5 border-white/10 text-white/40 hover:border-white/30'
+                                            }`}
+                                        >
+                                            {key}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
 
