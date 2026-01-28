@@ -81,23 +81,6 @@
         const BRAND_COLORS_PRESET = ['#073B4C', '#FF6B35', '#06D6A0', '#FFD166', '#118AB2', '#EF476F'];
         const ToneOptions = ['Profesional', 'Creativo', 'Cercano/Amistoso', 'Autoritario', 'Minimalista'];
 
-        // --- AI Services ---
-        const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-        const refineDescriptionAI = async (description, tone) => {
-            if (!description) return "Por favor escribe una descripción primero.";
-            try {
-                const response = await ai.models.generateContent({
-                    model: 'gemini-3-flash-preview',
-                    contents: `Refina la siguiente descripción de marca para que suene más ${tone}. Máximo 2 párrafos: "${description}"`,
-                    config: { temperature: 0.7 }
-                });
-                return response.text;
-            } catch (err) {
-                console.error(err);
-                return "Error al conectar con la IA.";
-            }
-        };
 
         // --- Components ---
 
