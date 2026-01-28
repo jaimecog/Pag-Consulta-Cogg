@@ -254,7 +254,6 @@
                 logoName: null
             });
             const [submittedData, setSubmittedData] = useState(null);
-            const [isRefining, setIsRefining] = useState(false);
             const [errors, setErrors] = useState([]);
 
             const handleInputChange = (e) => {
@@ -276,23 +275,6 @@
                 if (!formData.descripcion.trim()) errs.push("La descripción es requerida.");
                 setErrors(errs);
                 return errs.length === 0;
-            };
-
-            const handleAIRefine = async () => {
-                if (!formData.descripcion) return;
-                setIsRefining(true);
-                try {
-                    const response = await ai.models.generateContent({
-                        model: 'gemini-3-flash-preview',
-                        contents: `Refina la siguiente descripción de marca para que suene más ${formData.tono} y con un estilo ${formData.estilo}. Máximo 2 párrafos: "${formData.descripcion}"`,
-                        config: { temperature: 0.7 }
-                    });
-                    setFormData(p => ({ ...p, descripcion: response.text }));
-                } catch (err) {
-                    console.error(err);
-                    alert("Error al conectar con la IA.");
-                }
-                setIsRefining(false);
             };
 
             const handleSubmit = (e) => {
@@ -377,16 +359,8 @@
                             </div>
 
                             <div className="relative">
-                                <div className="flex justify-between items-center mb-3">
+                                <div className="mb-3">
                                     <label className="block text-sm font-semibold uppercase tracking-wider font-montserrat">Descripción y Misión</label>
-                                    <button
-                                        type="button"
-                                        onClick={handleAIRefine}
-                                        disabled={isRefining || !formData.descripcion}
-                                        className="text-[10px] bg-brandYellow text-brandDeep px-3 py-1.5 rounded-lg font-black uppercase tracking-tighter disabled:opacity-30 hover:scale-105 transition-transform"
-                                    >
-                                        {isRefining ? 'Revisando...' : '✨ Revisar con IA'}
-                                    </button>
                                 </div>
                                 <textarea
                                     name="descripcion"
